@@ -27,6 +27,7 @@ import {
 import ExternalActivityWithType, {
   externalActivityType,
 } from '../types/externalActivityWithType';
+import { readFileSync } from 'fs';
 
 export type SearchConnectorServiceOptions = {
   /**
@@ -139,12 +140,30 @@ export default class SearchConnectorService {
       },
     };
 
+    const resultTemplateLayout = this.getResultTemplate(
+      itemType == ItemTypeChoice.Issues
+        ? './result-cards/result-typeIssues.json'
+        : './result-cards/result-typeRepos.json',
+    );
+
     const newConnection: ExternalConnectors.ExternalConnection = {
       id: connectionId,
       name: name,
       description: description,
       activitySettings: {
         urlToItemResolvers: [itemIdResolver],
+      },
+      searchSettings: {
+        searchResultTemplates: [
+          {
+            id:
+              itemType == ItemTypeChoice.Issues
+                ? 'issueDisplay'
+                : 'repoDisplay',
+            priority: 1,
+            layout: resultTemplateLayout,
+          },
+        ],
       },
     };
 
@@ -446,5 +465,15 @@ export default class SearchConnectorService {
 
     // Labels can be a plain string or a label object
     return labels.map((l) => (typeof l === 'string' ? l : l.name)).join(',');
+  }
+
+  /**
+   * Loads adaptive card layout from a file.
+   * @param resultCardJsonFile - the path to the file.
+   * @returns The parsed JSON layout.
+   */
+  private getResultTemplate(resultCardJsonFile: string) {
+    const resultTemplate = readFileSync(resultCardJsonFile, 'utf-8');
+    return JSON.parse(resultTemplate);
   }
 }
