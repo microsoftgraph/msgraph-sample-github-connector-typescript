@@ -4,9 +4,10 @@
 import 'dotenv-flow/config';
 import * as readline from 'readline-sync';
 import { ExternalConnectors } from '@microsoft/microsoft-graph-types-beta';
-import fetch from 'node-fetch';
+import { marked } from 'marked';
 
 import { MenuChoice, menuPrompts, ItemTypeChoice, itemTypes } from './menu';
+import PlainTextRenderer from './markdown/plainTextRenderer';
 import SearchConnectorService from './services/searchConnectorService';
 import RepositoryService, {
   Issue,
@@ -386,6 +387,9 @@ async function pushAllRepositoriesAsync(
     );
   }
 
+  // Markdown to plain text renderer
+  const plainText = new PlainTextRenderer();
+
   if (repos) {
     for (const repo of repos) {
       console.log(`Adding/updating repository ${repo.name}...`);
@@ -406,12 +410,20 @@ async function pushAllRepositoriesAsync(
 
       if (repo.visibility === 'public') {
         // For public repositories,
-        // set content to the HTML content
-        const response = await fetch(repo.html_url);
-        if (response.ok) {
+        // set content to the README
+        const readme = await repoService.getReadmeAsync(repo.name);
+        const readmeContent = Buffer.from(readme.content, 'base64').toString(
+          'utf8',
+        );
+        const plainContent = marked.parse(readmeContent, {
+          renderer: plainText,
+        });
+        console.log(plainContent);
+
+        if (readme) {
           repoItem.content = {
-            type: 'html',
-            value: await response.text(),
+            type: 'text',
+            value: plainContent,
           };
         }
       } else {

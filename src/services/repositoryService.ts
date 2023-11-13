@@ -9,6 +9,7 @@ const OctokitWithRetry = Octokit.plugin(retry);
 
 // Load schemas from GitHub's OpenAPI types
 export type Repository = components['schemas']['repository'];
+export type Readme = components['schemas']['content-file'];
 export type RepoEvent = components['schemas']['event'];
 export type Issue = components['schemas']['issue'];
 export type IssueEvent = components['schemas']['issue-event'];
@@ -61,6 +62,24 @@ export default class RepositoryService {
         throw error;
       }
     }
+  }
+
+  /**
+   * Gets the README for a repository.
+   *
+   * @param repoName - The name of the repository.
+   * @returns The README.
+   */
+  public async getReadmeAsync(repoName: string): Promise<Readme> {
+    const response = await this.gitHubClient.request(
+      'GET /repos/{owner}/{repo}/readme',
+      {
+        owner: this.gitHubOwner,
+        repo: repoName,
+      },
+    );
+
+    return response.data as Readme;
   }
 
   /**
