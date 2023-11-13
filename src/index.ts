@@ -11,6 +11,7 @@ import PlainTextRenderer from './markdown/plainTextRenderer';
 import SearchConnectorService from './services/searchConnectorService';
 import RepositoryService, {
   Issue,
+  IssueComment,
   IssueEvent,
   RepoEvent,
   Repository,
@@ -326,6 +327,9 @@ async function pushAllIssuesWithActivitiesAsync(
     console.log(`Error getting issues: ${JSON.stringify(error, null, 2)}`);
   }
 
+  // Markdown to plain text renderer
+  const plainText = new PlainTextRenderer();
+
   if (issues) {
     for (const issue of issues) {
       console.log(`Adding/updating issue ${issue.number}`);
@@ -339,12 +343,39 @@ async function pushAllIssuesWithActivitiesAsync(
         );
       }
 
+      let comments: IssueComment[] = [];
+      try {
+        comments = await repoService.getCommentsForIssueAsync(issue.number);
+      } catch (error) {
+        console.log(
+          `Error getting comments for issue: ${JSON.stringify(error, null, 2)}`,
+        );
+      }
+
       try {
         const issueItem =
           await connectorService.createExternalItemFromIssueAsync(
             issue,
             issueEvents,
           );
+
+        // Generate content for the issue by concatenating
+        // the body of the issue + all comments
+        let issueContent = marked.parse(issue.body || '', {
+          renderer: plainText,
+        });
+
+        for (const comment of comments) {
+          issueContent += `\n${marked.parse(comment.body || '', {
+            renderer: plainText,
+          })}`;
+        }
+
+        issueItem.content = {
+          type: 'text',
+          value: issueContent,
+        };
+
         await connectorService.addOrUpdateItemAsync(connectionId, issueItem);
 
         const activities =
@@ -412,15 +443,15 @@ async function pushAllRepositoriesAsync(
         // For public repositories,
         // set content to the README
         const readme = await repoService.getReadmeAsync(repo.name);
-        const readmeContent = Buffer.from(readme.content, 'base64').toString(
-          'utf8',
-        );
-        const plainContent = marked.parse(readmeContent, {
-          renderer: plainText,
-        });
-        console.log(plainContent);
 
         if (readme) {
+          const readmeContent = Buffer.from(readme.content, 'base64').toString(
+            'utf8',
+          );
+          const plainContent = marked.parse(readmeContent, {
+            renderer: plainText,
+          });
+
           repoItem.content = {
             type: 'text',
             value: plainContent,

@@ -12,6 +12,7 @@ export type Repository = components['schemas']['repository'];
 export type Readme = components['schemas']['content-file'];
 export type RepoEvent = components['schemas']['event'];
 export type Issue = components['schemas']['issue'];
+export type IssueComment = components['schemas']['issue-comment'];
 export type IssueEvent = components['schemas']['issue-event'];
 export type Assignee = components['schemas']['simple-user'];
 export type Labels = components['schemas']['issue']['labels'];
@@ -110,6 +111,19 @@ export default class RepositoryService {
         repo: this.gitHubRepo,
       },
     )) as Issue[];
+  }
+
+  public async getCommentsForIssueAsync(
+    issueNumber: number,
+  ): Promise<IssueComment[]> {
+    return (await this.gitHubClient.paginate(
+      'GET /repos/{owner}/{repo}/issues/{issue_number}/comments',
+      {
+        owner: this.gitHubOwner,
+        repo: this.gitHubRepo,
+        issue_number: issueNumber,
+      },
+    )) as IssueComment[];
   }
 
   /**
