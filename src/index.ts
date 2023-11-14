@@ -4,12 +4,14 @@
 import 'dotenv-flow/config';
 import * as readline from 'readline-sync';
 import { ExternalConnectors } from '@microsoft/microsoft-graph-types-beta';
-import fetch from 'node-fetch';
+import { marked } from 'marked';
 
 import { MenuChoice, menuPrompts, ItemTypeChoice, itemTypes } from './menu';
+import PlainTextRenderer from './markdown/plainTextRenderer';
 import SearchConnectorService from './services/searchConnectorService';
 import RepositoryService, {
   Issue,
+  IssueComment,
   IssueEvent,
   RepoEvent,
   Repository,
@@ -325,6 +327,9 @@ async function pushAllIssuesWithActivitiesAsync(
     console.log(`Error getting issues: ${JSON.stringify(error, null, 2)}`);
   }
 
+  // Markdown to plain text renderer
+  const plainText = new PlainTextRenderer();
+
   if (issues) {
     for (const issue of issues) {
       console.log(`Adding/updating issue ${issue.number}`);
@@ -338,12 +343,39 @@ async function pushAllIssuesWithActivitiesAsync(
         );
       }
 
+      let comments: IssueComment[] = [];
+      try {
+        comments = await repoService.getCommentsForIssueAsync(issue.number);
+      } catch (error) {
+        console.log(
+          `Error getting comments for issue: ${JSON.stringify(error, null, 2)}`,
+        );
+      }
+
       try {
         const issueItem =
           await connectorService.createExternalItemFromIssueAsync(
             issue,
             issueEvents,
           );
+
+        // Generate content for the issue by concatenating
+        // the body of the issue + all comments
+        let issueContent = marked.parse(issue.body || '', {
+          renderer: plainText,
+        });
+
+        for (const comment of comments) {
+          issueContent += `\n${marked.parse(comment.body || '', {
+            renderer: plainText,
+          })}`;
+        }
+
+        issueItem.content = {
+          type: 'text',
+          value: issueContent,
+        };
+
         await connectorService.addOrUpdateItemAsync(connectionId, issueItem);
 
         const activities =
@@ -386,6 +418,9 @@ async function pushAllRepositoriesAsync(
     );
   }
 
+  // Markdown to plain text renderer
+  const plainText = new PlainTextRenderer();
+
   if (repos) {
     for (const repo of repos) {
       console.log(`Adding/updating repository ${repo.name}...`);
@@ -406,12 +441,20 @@ async function pushAllRepositoriesAsync(
 
       if (repo.visibility === 'public') {
         // For public repositories,
-        // set content to the HTML content
-        const response = await fetch(repo.html_url);
-        if (response.ok) {
+        // set content to the README
+        const readme = await repoService.getReadmeAsync(repo.name);
+
+        if (readme) {
+          const readmeContent = Buffer.from(readme.content, 'base64').toString(
+            'utf8',
+          );
+          const plainContent = marked.parse(readmeContent, {
+            renderer: plainText,
+          });
+
           repoItem.content = {
-            type: 'html',
-            value: await response.text(),
+            type: 'text',
+            value: plainContent,
           };
         }
       } else {
