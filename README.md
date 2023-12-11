@@ -4,6 +4,7 @@ description: This sample demonstrates how to use the Microsoft Graph connector A
 products:
 - ms-graph
 - github
+- copilot-m365
 languages:
 - typescript
 ---
