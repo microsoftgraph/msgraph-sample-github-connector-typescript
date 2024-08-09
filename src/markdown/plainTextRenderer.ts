@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { MarkedOptions, Renderer } from 'marked';
+import { MarkedOptions, Renderer, Tokens } from 'marked';
 
 /**
  * Custom renderer for marked.js to convert
@@ -12,86 +12,83 @@ export default class PlainTextRenderer extends Renderer {
     super(options);
   }
 
-  code(code: string, _info: string | undefined, _escaped: boolean): string {
-    return '\n\n' + code + '\n\n';
+  code(tokens: Tokens.Code): string {
+    return '\n\n' + tokens.text + '\n\n';
   }
 
-  blockquote(quote: string): string {
-    return quote + '\n';
+  blockquote(tokens: Tokens.Blockquote): string {
+    return tokens.text + '\n';
   }
 
-  html(html: string, _block?: boolean): string {
-    return html;
+  html(tokens: Tokens.HTML): string {
+    return tokens.text;
   }
 
-  heading(text: string, _level: number, _raw: string): string {
-    return text;
+  heading(tokens: Tokens.Heading): string {
+    return tokens.text;
   }
 
   hr(): string {
     return '\n\n';
   }
 
-  list(body: string, _ordered: boolean, _start: number | ''): string {
-    return body;
-  }
-
-  listitem(text: string, _task: boolean, _checked: boolean): string {
-    return '- ' + text + '\n';
-  }
-
-  checkbox(_checked: boolean): string {
+  list(_tokens: Tokens.List): string {
     return '';
   }
 
-  paragraph(text: string): string {
-    return '\n' + text + '\n';
+  listitem(tokens: Tokens.ListItem): string {
+    return '- ' + tokens.text + '\n';
   }
 
-  table(header: string, body: string): string {
-    return '\n' + header + '\n' + body + '\n';
+  checkbox(_tokens: Tokens.Checkbox): string {
+    return '';
   }
 
-  tablerow(content: string): string {
-    return content + '\n';
+  paragraph(tokens: Tokens.Paragraph): string {
+    return '\n' + tokens.text + '\n';
   }
 
-  tablecell(
-    content: string,
-    _flags: { header: boolean; align: 'center' | 'left' | 'right' | null },
-  ): string {
-    return content + '\t';
+  table(_tokens: Tokens.Table): string {
+    return '';
   }
 
-  strong(text: string): string {
-    return text;
+  tablerow(tokens: Tokens.TableRow): string {
+    return tokens.text + '\n';
   }
 
-  em(text: string): string {
-    return text;
+  tablecell(tokens: Tokens.TableCell): string {
+    return tokens.text + '\t';
   }
 
-  codespan(text: string): string {
-    return text;
+  strong(tokens: Tokens.Strong): string {
+    return tokens.text;
+  }
+
+  em(tokens: Tokens.Em): string {
+    return tokens.text;
+  }
+
+  codespan(tokens: Tokens.Codespan): string {
+    return tokens.text;
   }
 
   br(): string {
     return '\n\n';
   }
 
-  del(text: string): string {
-    return text;
+  del(tokens: Tokens.Del): string {
+    return tokens.text;
   }
 
-  link(_href: string, _title: string | null | undefined, text: string): string {
-    return text;
+  link(tokens: Tokens.Link): string {
+    return tokens.text + ' (' + tokens.href + ')';
   }
 
-  image(_href: string, _title: string | null, text: string): string {
-    return text;
+  image(tokens: Tokens.Image): string {
+    return tokens.text;
   }
 
-  text(text: string): string {
-    return text;
+  text(tokens: Tokens.Text): string {
+    return tokens.text;
   }
 }
