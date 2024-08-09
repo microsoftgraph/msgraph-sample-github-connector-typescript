@@ -361,12 +361,14 @@ async function pushAllIssuesWithActivitiesAsync(
 
         // Generate content for the issue by concatenating
         // the body of the issue + all comments
-        let issueContent = marked.parse(issue.body || '', {
+        let issueContent = await marked.parse(issue.body || '', {
+          async: true,
           renderer: plainText,
         });
 
         for (const comment of comments) {
-          issueContent += `\n${marked.parse(comment.body || '', {
+          issueContent += `\n${await marked.parse(comment.body || '', {
+            async: true,
             renderer: plainText,
           })}`;
         }
@@ -448,7 +450,8 @@ async function pushAllRepositoriesAsync(
           const readmeContent = Buffer.from(readme.content, 'base64').toString(
             'utf8',
           );
-          const plainContent = marked.parse(readmeContent, {
+          const plainContent = await marked.parse(readmeContent, {
+            async: true,
             renderer: plainText,
           });
 
