@@ -1,18 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as express from 'express';
+import e, { Express, Request, Response } from 'express';
 import Router from 'express-promise-router';
-import { JwtHeader, SigningKeyCallback, verify } from 'jsonwebtoken';
+import jwt, { JwtHeader, SigningKeyCallback } from 'jsonwebtoken';
+const { verify } = jwt;
 import { JwksClient } from 'jwks-rsa';
 import {
   ChangeNotificationCollection,
   ExternalConnectors,
-} from '@microsoft/microsoft-graph-types-beta';
+} from '@microsoft/microsoft-graph-types';
 
-import SearchConnectorService from './searchConnectorService';
-import ConnectorData from '../types/connectorData';
-import { ItemTypeChoice } from '../menu';
+import SearchConnectorService from './searchConnectorService.js';
+import ConnectorData from '../types/connectorData.js';
+import { ItemTypeChoice } from '../menu.js';
 
 export type M365AppConfigServiceOptions = {
   /**
@@ -30,7 +31,7 @@ export type M365AppConfigServiceOptions = {
 };
 
 export default class M365AppConfigService {
-  private app: express.Express;
+  private app: Express;
   private clientId: string;
   private tenantId: string;
   private port: number;
@@ -50,8 +51,8 @@ export default class M365AppConfigService {
     this.port = options.port;
     this.connectorService = connectorService;
 
-    this.app = express();
-    this.app.use(express.json());
+    this.app = e();
+    this.app.use(e.json());
     const router = Router();
     this.app.use(router);
     this.app.locals.configService = this;
@@ -74,7 +75,7 @@ export default class M365AppConfigService {
    * @param req - The incoming request.
    * @param res - The outgoing response.
    */
-  private async processRequest(req: express.Request, res: express.Response) {
+  private async processRequest(req: Request, res: Response) {
     const changeNotifications = req.body as ChangeNotificationCollection;
     const configService = res.app.locals.configService as M365AppConfigService;
 

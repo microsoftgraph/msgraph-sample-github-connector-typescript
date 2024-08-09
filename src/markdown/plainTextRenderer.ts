@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { MarkedOptions, Renderer, Token, Tokens } from 'marked';
+import { MarkedOptions, Renderer, Tokens } from 'marked';
 
 /**
  * Custom renderer for marked.js to convert

@@ -9,13 +9,15 @@ import {
   PageCollection,
   ResponseType,
 } from '@microsoft/microsoft-graph-client';
-import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials';
-import { ExternalConnectors } from '@microsoft/microsoft-graph-types-beta';
-import { issuesSchema, reposSchema } from './schemas';
-import { ItemTypeChoice } from '../menu';
+// prettier-ignore
+import { TokenCredentialAuthenticationProvider } from
+  '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js';
+import { ExternalConnectors } from '@microsoft/microsoft-graph-types';
+import { issuesSchema, reposSchema } from './schemas.js';
+import { ItemTypeChoice } from '../menu.js';
 import ItemIdResolverWithType, {
   itemIdResolverType,
-} from '../types/itemIdResolverWithType';
+} from '../types/itemIdResolverWithType.js';
 import {
   Assignee,
   Issue,
@@ -23,10 +25,10 @@ import {
   Labels,
   RepoEvent,
   Repository,
-} from './repositoryService';
+} from './repositoryService.js';
 import ExternalActivityWithType, {
   externalActivityType,
-} from '../types/externalActivityWithType';
+} from '../types/externalActivityWithType.js';
 import { readFileSync } from 'fs';
 
 export type SearchConnectorServiceOptions = {
@@ -104,7 +106,6 @@ export default class SearchConnectorService {
 
     this.graphClient = Client.initWithMiddleware({
       authProvider: authProvider,
-      defaultVersion: 'beta',
     });
   }
 

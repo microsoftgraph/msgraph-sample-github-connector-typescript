@@ -5,7 +5,6 @@ import globals from 'globals';
 import js from '@eslint/js';
 import tsParser from '@typescript-eslint/parser';
 import eslintTypeScript from '@typescript-eslint/eslint-plugin';
-import eslintPluginPrettier from 'eslint-plugin-prettier';
 import eslintPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import eslintTsDocPlugin from 'eslint-plugin-tsdoc';
 import header from 'eslint-plugin-header';
@@ -18,7 +17,7 @@ export default [
   js.configs.recommended,
   eslintPrettierRecommended,
   {
-    files: ['**.{ts,js}'],
+    files: ['**/*.{ts,mjs}'],
 
     languageOptions: {
       globals: {
@@ -31,10 +30,9 @@ export default [
     },
 
     plugins: {
-      eslintTypeScript,
+      typeScript: eslintTypeScript,
       header,
       tsdoc: eslintTsDocPlugin,
-      eslintPluginPrettier,
     },
 
     rules: {
@@ -52,6 +50,13 @@ export default [
           singleQuote: true,
           endOfLine: 'auto',
           printWidth: 80,
+        },
+      ],
+      'no-unused-vars': 'off',
+      'typeScript/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
         },
       ],
       'tsdoc/syntax': 'warn',

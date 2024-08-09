@@ -3,20 +3,20 @@
 
 import 'dotenv-flow/config';
 import * as readline from 'readline-sync';
-import { ExternalConnectors } from '@microsoft/microsoft-graph-types-beta';
+import { ExternalConnectors } from '@microsoft/microsoft-graph-types';
 import { marked } from 'marked';
 
-import { MenuChoice, menuPrompts, ItemTypeChoice, itemTypes } from './menu';
-import PlainTextRenderer from './markdown/plainTextRenderer';
-import SearchConnectorService from './services/searchConnectorService';
+import { MenuChoice, menuPrompts, ItemTypeChoice, itemTypes } from './menu.js';
+import PlainTextRenderer from './markdown/plainTextRenderer.js';
+import SearchConnectorService from './services/searchConnectorService.js';
 import RepositoryService, {
   Issue,
   IssueComment,
   IssueEvent,
   RepoEvent,
   Repository,
-} from './services/repositoryService';
-import M365AppConfigService from './services/m365AppConfigService';
+} from './services/repositoryService.js';
+import M365AppConfigService from './services/m365AppConfigService.js';
 
 async function main() {
   // Connector service for making Microsoft Graph
@@ -444,21 +444,27 @@ async function pushAllRepositoriesAsync(
       if (repo.visibility === 'public') {
         // For public repositories,
         // set content to the README
-        const readme = await repoService.getReadmeAsync(repo.name);
+        try {
+          const readme = await repoService.getReadmeAsync(repo.name);
 
-        if (readme) {
           const readmeContent = Buffer.from(readme.content, 'base64').toString(
-            'utf8',
+            'utf-8',
           );
-          const plainContent = await marked.parse(readmeContent, {
-            async: true,
-            renderer: plainText,
-          });
+          if (readme) {
+            const plainContent = await marked.parse(readmeContent, {
+              async: true,
+              renderer: plainText,
+            });
 
-          repoItem.content = {
-            type: 'text',
-            value: plainContent,
-          };
+            repoItem.content = {
+              type: 'text',
+              value: plainContent,
+            };
+          }
+        } catch (error) {
+          console.log(
+            `Error getting README: ${JSON.stringify(error, null, 2)}`,
+          );
         }
       } else {
         // For private repositories,

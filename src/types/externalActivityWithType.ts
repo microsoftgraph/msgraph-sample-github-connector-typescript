@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ExternalConnectors } from '@microsoft/microsoft-graph-types-beta';
+import { ExternalConnectors } from '@microsoft/microsoft-graph-types';
 
 /**
  * Extends the ExternalConnectors.ExternalActivity to give access to

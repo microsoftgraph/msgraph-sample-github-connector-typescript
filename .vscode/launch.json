@@ -19,7 +19,7 @@
         "NODE_ENV": "development"
       },
       "outFiles": [
-        "${workspaceFolder}/**/*.js"
+        "${workspaceFolder}/out/**/*.js"
       ]
     },
     {
@@ -40,7 +40,7 @@
         "--use-simplified-admin"
       ],
       "outFiles": [
-        "${workspaceFolder}/**/*.js"
+        "${workspaceFolder}/out/**/*.js"
       ]
     },
   ]
