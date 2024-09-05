@@ -3,7 +3,7 @@
 
 import e, { Express, Request, Response } from 'express';
 import Router from 'express-promise-router';
-import jwt, { JwtHeader, SigningKeyCallback } from 'jsonwebtoken';
+import jwt, { JwtHeader, JwtPayload, SigningKeyCallback } from 'jsonwebtoken';
 const { verify } = jwt;
 import { JwksClient } from 'jwks-rsa';
 import {
@@ -14,6 +14,8 @@ import {
 import SearchConnectorService from './searchConnectorService.js';
 import ConnectorData from '../types/connectorData.js';
 import { ItemTypeChoice } from '../menu.js';
+
+const graphNotificationPublisherId = '0bf30f3b-4a52-48df-9a82-234910c4a086';
 
 export type M365AppConfigServiceOptions = {
   /**
@@ -199,12 +201,13 @@ export default class M365AppConfigService {
         ],
       };
 
-      verify(token, this.getKey, options, (error) => {
+      verify(token, this.getKey, options, (error, decoded) => {
         if (error) {
           console.log(`Token validation error: ${error.message}`);
           resolve(false);
         } else {
-          resolve(true);
+          const payload = decoded as JwtPayload;
+          resolve(payload[''] === graphNotificationPublisherId);
         }
       });
     });
