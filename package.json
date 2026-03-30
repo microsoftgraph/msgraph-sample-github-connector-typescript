@@ -15,7 +15,7 @@
   "license": "MIT",
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "^2.40.0",
-    "@octokit/openapi-types": "^22.2.0",
+    "@octokit/openapi-types": "^26.0.0",
     "@types/express": "^4.17.21",
     "@types/isomorphic-fetch": "^0.0.39",
     "@types/node": "^20.17.31",
