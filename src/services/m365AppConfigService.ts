@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import e, { Express, Request, Response } from 'express';
-import Router from 'express-promise-router';
 import jwt, { JwtHeader, JwtPayload, SigningKeyCallback } from 'jsonwebtoken';
 const { verify } = jwt;
 import { JwksClient } from 'jwks-rsa';
@@ -55,7 +54,7 @@ export default class M365AppConfigService {
 
     this.app = e();
     this.app.use(e.json());
-    const router = Router();
+    const router = e.Router();
     this.app.use(router);
     this.app.locals.configService = this;
 
