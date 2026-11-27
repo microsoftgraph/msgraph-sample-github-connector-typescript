@@ -14,7 +14,7 @@
   "author": "Microsoft Corporation",
   "license": "MIT",
   "devDependencies": {
-    "@microsoft/microsoft-graph-types": "^2.40.0",
+    "@microsoft/microsoft-graph-types": "^2.43.1",
     "@octokit/openapi-types": "^29.0.1",
     "@types/express": "^5.0.6",
     "@types/isomorphic-fetch": "^0.0.39",
